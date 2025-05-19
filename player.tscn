@@ -1,0 +1,138 @@
+[gd_scene load_steps=9 format=3 uid="uid://v0hr8nyjbe6g"]
+
+[ext_resource type="Script" path="res://player.gd" id="1_niq0t"]
+[ext_resource type="Texture2D" uid="uid://c71kr8t56acpk" path="res://assets/shooter.png" id="2_mk3kn"]
+[ext_resource type="Texture2D" uid="uid://byetou4lqhj2h" path="res://assets/dead_body.png" id="3_cgkih"]
+[ext_resource type="Texture2D" uid="uid://bymox3ugteac8" path="res://assets/blood_splatter.png" id="4_ny0oo"]
+[ext_resource type="AudioStream" uid="uid://cyxl7ryvf81qs" path="res://assets/death_noise1.wav" id="5_m88cn"]
+[ext_resource type="AudioStream" uid="uid://616x3l7qdjr1" path="res://assets/shotgun_shot1.wav" id="6_nktve"]
+[ext_resource type="Texture2D" uid="uid://3a6w7i8lu2f5" path="res://assets/muzzle_flash.png" id="7_vppvo"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_3bryd"]
+radius = 24.5204
+
+[node name="player" type="CharacterBody2D" groups=["player"]]
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("1_niq0t")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-0.5, 2)
+shape = SubResource("CircleShape2D_3bryd")
+
+[node name="Graphics" type="Node2D" parent="."]
+position = Vector2(3, -14.5)
+
+[node name="Alive" type="Sprite2D" parent="Graphics"]
+position = Vector2(0.5, -2)
+texture = ExtResource("2_mk3kn")
+
+[node name="Dead" type="Sprite2D" parent="Graphics"]
+visible = false
+z_index = -1
+position = Vector2(0.5, -2)
+texture = ExtResource("3_cgkih")
+
+[node name="Sprite2D" type="Sprite2D" parent="Graphics/Dead"]
+modulate = Color(0.454902, 0, 0, 1)
+show_behind_parent = true
+rotation = 0.468759
+texture = ExtResource("4_ny0oo")
+
+[node name="RayCast2D" type="RayCast2D" parent="."]
+position = Vector2(5.5, -25)
+target_position = Vector2(0, -1000)
+collision_mask = 3
+
+[node name="DeathSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_m88cn")
+pitch_scale = 0.01
+bus = &"sfx"
+
+[node name="ShootSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_nktve")
+
+[node name="MuzzleFlash" type="Sprite2D" parent="."]
+visible = false
+modulate = Color(0.84499, 0.844819, 1.54018e-06, 1)
+position = Vector2(4, -84)
+texture = ExtResource("7_vppvo")
+
+[node name="Timer" type="Timer" parent="MuzzleFlash"]
+wait_time = 0.05
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="DeathScreen" type="Control" parent="CanvasLayer"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer/DeathScreen"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.4)
+
+[node name="Panel" type="Panel" parent="CanvasLayer/DeathScreen"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -103.0
+offset_top = -54.0
+offset_right = 103.0
+offset_bottom = 54.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/DeathScreen/Panel"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -37.0
+offset_top = 9.0
+offset_right = 37.0
+offset_bottom = 32.0
+grow_horizontal = 2
+text = "You Died!"
+
+[node name="Button" type="Button" parent="CanvasLayer/DeathScreen/Panel"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -32.5
+offset_top = -37.0
+offset_right = 32.5
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Restart"
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="Split" type="Node2D" parent="."]
+
+[node name="RayCast2D" type="RayCast2D" parent="Split"]
+position = Vector2(-42, 0)
+target_position = Vector2(-1000, 0)
+
+[node name="RayCast2D2" type="RayCast2D" parent="Split"]
+position = Vector2(32, 0)
+target_position = Vector2(1000, 0)
+
+[connection signal="timeout" from="MuzzleFlash/Timer" to="MuzzleFlash" method="hide"]
+[connection signal="button_up" from="CanvasLayer/DeathScreen/Panel/Button" to="." method="restart"]
